@@ -1,71 +1,21 @@
-# Ionic React Conference App
+# Threshold Atlas
 
-[![Built with Ionic](https://img.shields.io/badge/-Built%20with%20Ionic-3880FF?style=flat&logo=ionic&logoColor=white)](https://ionicframework.com)
-[![React](https://img.shields.io/badge/-React-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org)
-[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+Explore places, save your shortlist and book a viewing. These illustrative listings and visits use demonstration inventory.
 
+[Install on Android](https://github.com/hamzabounibanedz/threshold-atlas/releases/latest) · [Build and emulator results](https://github.com/hamzabounibanedz/threshold-atlas/actions/workflows/android.yml)
 
-This is a **kitchen-sink demo application** built with **Ionic Framework** and **React**. It showcases a wide range of Ionic components and features in the context of a fictional tech conference app.
+![Scan to open the installation page](docs/install-qr.png)
 
-**Note**: There is no actual Ionic Conference. This project is purely for demonstration purposes.
+Download the APK on the release page and open it on Android 7 or later. Android may ask you to allow this browser to install apps. The release also includes an Android App Bundle, SHA-256 checksums, and Android emulator screenshots and test output.
 
-👉 [Try the Live Demo](https://ionic-react-conference-app-git-main-ionic1.vercel.app/tutorial)
+Choose **Explore demo** or sign in with `threshold@demo.mobile.invalid` and `StudioVisit!27`. Each installation gets an isolated demo workspace. Personal accounts use email confirmation. Use fictional details in the demonstration environment.
 
-## 🧱 Framework Variants
+## Development and release
 
-This app is also available in other frameworks:
+Open the repository in a cloud development environment with Node 24. Run `npm ci` and `npm run dev` for web development. Use **Actions → Android release → Run workflow** to compile the APK and AAB, install the APK on a hosted emulator, test the principal workflow and publish verified artifacts. Signing uses repository secrets ANDROID_KEYSTORE and ANDROID_KEYPASS. The app identifier is `app.hamzabounibanedz.threshold`.
 
-- 🔗 [Ionic Angular Conference App](https://github.com/ionic-team/ionic-conference-app)
-- 🔗 [Ionic Vue Conference App](https://github.com/ionic-team/ionic-vue-conference-app)
-- ✅ **You're viewing the React version**
+The hosted API is [Supabase](https://chwwunmxjinxkfkxymrw.supabase.co). This app owns its `threshold` database schema and `threshold_workspace` REST RPC. To deploy to a fresh Supabase project, apply the two SQL files in backend in numerical order, enable email/password authentication, and replace the public project URL and publishable key in src/platform.js. Admin roles are assigned only by a database administrator. Demo permissions are confined to the individual installation.
 
-## ✨ Features
+The branded iOS project is included. On a macOS cloud runner, install dependencies, build the web bundle and run `npx cap sync ios`. Distribution requires an Apple development team, provisioning profile and signing certificate.
 
-- Browse conference schedule with filtering
-- View speaker bios and session details
-- User authentication and profile management
-- Interactive maps for venue navigation
-- Push notifications support
-- Dark/Light mode toggling
-- Cross-platform support: iOS, Android, and Web
-
-## ⚙️ Getting Started
-
-### Prerequisites
-
-- Node.js (LTS version recommended) → [Download](https://nodejs.org/)
-- npm (included with Node.js)
-- Ionic CLI → Install globally:
-  ```bash
-  npm install -g ionic
-  ```
-
-### Installation
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/ionic-team/ionic-react-conference-app.git
-    ```
-2. Navigate into the project:
-    ```bash
-    cd ionic-react-conference-app
-    ```
-3. Install dependencies:
-    ```bash
-    npm install
-    ```
-4. Start the dev server:
-    ```bash
-    ionic serve
-    ```
-5. Open your browser to:
-    ```
-    http://localhost:3000
-    ```
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](.github/CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project.
-
-## 📄 License
-
-This project is licensed under the MIT [License](./LICENSE).
+See [attribution](NOTICE.md) and the [upstream license](LICENSE).

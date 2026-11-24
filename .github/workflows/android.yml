@@ -1,0 +1,95 @@
+name: Android release
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: android-release
+  cancel-in-progress: false
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --no-audit && npm run build && npx cap sync android
+      - name: Compile signed application and instrumentation
+        env:
+          SIGNING_DATA: ${{ secrets.ANDROID_KEYSTORE }}
+          SIGNING_PASSWORD: ${{ secrets.ANDROID_KEYPASS }}
+        run: |
+          set -euo pipefail
+          export SIGNING_FILE="$RUNNER_TEMP/upload.p12"
+          trap 'rm -f "$SIGNING_FILE"' EXIT
+          printf '%s' "$SIGNING_DATA" | base64 -d > "$SIGNING_FILE"
+          cd android
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease :app:bundleRelease :app:assembleReleaseAndroidTest --stacktrace
+          cd ..
+          mkdir -p delivery/evidence
+          cp android/app/build/outputs/apk/release/*.apk delivery/threshold-atlas.apk
+          cp android/app/build/outputs/bundle/release/*.aab delivery/threshold-atlas.aab
+          tool=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)
+          "$tool" verify --verbose --print-certs delivery/threshold-atlas.apk > delivery/evidence/signature.txt
+          jarsigner -verify delivery/threshold-atlas.aab
+      - name: Enable hardware virtualization
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install signed APK and exercise workflows on Android
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          script: bash qa/emulator.sh
+      - name: Keep test evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: device-evidence
+          path: delivery/evidence
+      - name: Stage verified downloads
+        run: |
+          cp docs/install-qr.png delivery/
+          cd delivery
+          sha256sum *.apk *.aab > SHA256SUMS
+          tar czf device-evidence.tar.gz evidence
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-files
+          path: |
+            delivery/*.apk
+            delivery/*.aab
+            delivery/*.png
+            delivery/*.tar.gz
+            delivery/SHA256SUMS
+  publish:
+    needs: android
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: delivery
+      - name: Publish tested release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "android-${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}" delivery/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Threshold Atlas · Android build ${GITHUB_RUN_NUMBER}" --notes "Download the APK to install on Android 7 or newer. The AAB is for store submission. This build passed installation and workflow tests on a hosted Android 15 emulator. [Build and test results]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+

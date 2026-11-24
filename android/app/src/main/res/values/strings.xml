@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">ionic-react-conference-app</string>
-    <string name="title_activity_main">ionic-react-conference-app</string>
-    <string name="package_name">io.ionic.conference.react</string>
-    <string name="custom_url_scheme">io.ionic.conference.react</string>
+    <string name="app_name">Threshold Atlas</string>
+    <string name="title_activity_main">Threshold Atlas</string>
+    <string name="package_name">app.hamzabounibanedz.threshold</string>
+    <string name="custom_url_scheme">app.hamzabounibanedz.threshold</string>
 </resources>

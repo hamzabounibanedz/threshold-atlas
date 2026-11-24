@@ -1,15 +1,12 @@
 {
-  "appId": "io.ionic.conference.react",
-  "appName": "ionic-react-conference-app",
-  "bundledWebRuntime": false,
-  "npmClient": "npm",
+  "appId": "app.hamzabounibanedz.threshold",
+  "appName": "Threshold Atlas",
   "webDir": "dist",
-  "cordova": {},
   "plugins": {
     "SplashScreen": {
-      "launchAutoHide": false,
-      "backgroundColor": "#ffffffff",
-      "androidScaleType": "CENTER_CROP"
+      "launchAutoHide": true,
+      "launchShowDuration": 300,
+      "backgroundColor": "#584537ff"
     }
   }
 }
